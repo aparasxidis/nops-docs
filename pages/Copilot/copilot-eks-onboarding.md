@@ -50,6 +50,30 @@ Compute Copilot for EKS even covers your commitments with a 100% money-back guar
 
     ![](https://lh4.googleusercontent.com/7eISgP_ZiLo_JO2zGS8dOdp7HvYLBO4N5rMK1FC-szbc668pp-pCz_ysW2NKhvPylazv_3oRIden3mwgLG09eWT0XsbXX31dfsJ_Sot5PpBSJERDAsErwjI_wQC8kRseM_ezcQZ7JxzR05e8Gtdz328)
 
+### External Secrets Support for API Keys: ###
+You can use AWS Secrets Manager integration with [External Secrets Operator](https://external-secrets.io/latest/provider/aws-secrets-manager/) to create/sync the API Key secrets in your kubernetes cluster
+#### Prerequisites:
+- ##### AWS Secrets Manager Secret
+  1. Navigate to AWS Secrets Manager service.
+  2. Click on store a new secret.
+  3. Select Other type of secret.
+  4. Add key/value for apiKey and DD_API_KEY respectively.
+  5. Give the secret a name (Take note of the secret name as it will be used in helm command).
+  6. Store/Create the new secret.
+- ##### ClusterSecretStore
+  1. Already existing [ClusterSecretStore](https://external-secrets.io/latest/api/clustersecretstore/) (Take note of the ClusterSecretStore name as it will be used in helm command)
+
+#### Updated helm command
+
+```bash
+helm upgrade -i karpenops oci://public.ecr.aws/nops/karpenops-helm \
+--version <version> \
+--namespace karpenter \
+--set clusterId=<your_cluster_id> \
+--set externalSecrets.enabled=true \
+--set externalSecrets.secretStoreRef.name=<your_cluster_secret_store_name> \
+--set externalSecrets.data.apiKeys.remoteRef.key=<your_secret_name> # From step 5
+```
 ### Create EC2NodeClass/AWSNodeTemplate:
 
 EC2NodeClass/AWSNodeTemplate can be created in two ways-
@@ -169,4 +193,3 @@ As soon as cluster status displays **Configured**, Compute Copilot for EKS will 
 * Compute Copilot EKS adds a common tag to all resources it manages. This is accomplished by automatically adding a tag in the `spec.tags` section of AWSNodeTemplates. The value of the tag is `nops:nks:enabled=true` and it will appear on all EC2 managed by Compute Copilot EKS.
 
 {% include custom/series_related.html %}
-
